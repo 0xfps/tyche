@@ -1,5 +1,5 @@
 name: Tyche Contracts Compiler
-on: push
+on: [push, pull_request]
 env:
   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
 jobs:
