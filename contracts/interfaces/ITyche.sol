@@ -8,9 +8,7 @@ pragma solidity ^0.8.7;
 */
 interface ITyche {
     /// @dev Emitted when an ERC721 NFT is listed.
-    event List721(address _owner, address _nft);
-    /// @dev Emitted when an ERC1155 NFT is listed.
-    event List1155(address _owner, address _nft);
+    event List(address _owner, address _nft);
     /// @dev Emitted when an NFT is withdrawn.
     event Withdraw(address _owner, address _nft);
     /// @dev Emitted when an NFT is rated.
@@ -19,10 +17,10 @@ interface ITyche {
     event Reward(address _receiver, uint256 _reward);
 
     /**
-    * @dev  Allows the caller to list an ERC721 NFT on the protocol. It is
+    * @dev  Allows the caller to list an NFT on the protocol. It is
     *       worthy to note that only NFT owners can list their tokens, and 
     *       tokens can be listed if they are not on the blacklist.
-    *       This will emit the {List721} event.
+    *       This will emit the {List} event.
     *
     * @param _address   Contract address of the NFT.
     * @param _id        Token Id.
@@ -30,25 +28,7 @@ interface ITyche {
     *
     * @return bool.
     */
-    function listERC721NFT(
-        address _address, 
-        uint256 _id, 
-        string memory _uri
-    ) external returns(bool);
-
-    /**
-    * @dev  Allows the caller to list an ERC1155 NFT on the protocol. It is
-    *       worthy to note that only NFT owners can list their tokens, and 
-    *       tokens can be listed if they are not on the blacklist.
-    *       This will emit the {List1155} event.
-    *
-    * @param _address   Contract address of the NFT.
-    * @param _id        Token Id.
-    * @param _uri       String URI of the particular token Id.
-    *
-    * @return bool.
-    */
-    function listERC1155NFT(
+    function listNFT(
         address _address, 
         uint256 _id, 
         string memory _uri

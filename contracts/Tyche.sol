@@ -14,7 +14,7 @@ import {TycheToken} from "./utils/TycheToken.sol";
 * @author Anthony (fps) https://github.com/0xfps.
 * @dev NFT Rating Protocol.
 */
-abstract contract Tyche is ITyche, Guard {
+contract Tyche is ITyche, Guard {
     /// @dev NFT Data.
     struct NFTData {
         bool _isValid;
@@ -64,7 +64,7 @@ abstract contract Tyche is ITyche, Guard {
     /**
     * @inheritdoc ITyche
     */
-    function listERC721NFT(
+    function listNFT(
         address _address, 
         uint256 _id, 
         string memory _uri
@@ -72,11 +72,12 @@ abstract contract Tyche is ITyche, Guard {
     public 
     override 
     notInBlacklist(_address)
-    returns(bool) {
+    returns(bool) 
+    {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the caller is the owner of the NFT.
-        require(IERC721(_address).ownerOf(_id) == msg.sender, "!Owner");
+        require(isOwner(_address, _id), "!Owner");
         /// @dev Ensure the `_uri` is not empty.
         require(bytes(_uri).length != 0, "!URI");
 
@@ -92,47 +93,95 @@ abstract contract Tyche is ITyche, Guard {
         listings[_address] = _NFTData;
 
         /// @dev Emit {List721} Event.
-        emit List721(msg.sender, _address);
+        emit List(msg.sender, _address);
 
-        /// @dev Return true.
         return true;
     }
 
     /**
     * @inheritdoc ITyche
     */
-    function listERC1155NFT(
-        address _address, 
-        uint256 _id, 
-        string memory _uri
-    ) 
+    function withdrawNFT(address _address, uint256 _id) 
     public 
     override 
-    notInBlacklist(_address)
-    returns(bool) {
+    returns(bool) 
+    {
         /// @dev Validate address.
         _validateAddress(_address);
+        /// @dev Ensure the NFT is valid.
+        require(listings[_address]._isValid, "Withdrawn.");
         /// @dev Ensure the caller is the owner of the NFT.
-        require(IERC1155(_address).balanceOf(msg.sender, _id) > 0, "!Owner");
-        /// @dev Ensure the `_uri` is not empty.
-        require(bytes(_uri).length != 0, "!URI");
+        require(isOwner(_address, _id), "!Owner");
 
-        /// @dev Generate NFT data to memory.
-        NFTData memory _NFTData = NFTData(
-            true,
-            "1155",
-            msg.sender,
-            _id, _uri, 0, 0
-        );
+        /// @dev Remove NFT.
+        delete listings[_address];
 
-        /// @dev Store generated NFT data to map.
-        listings[_address] = _NFTData;
+        /// @dev Emit {Withdraw} event.
+        emit Withdraw(msg.sender, _address);
 
-        /// @dev Emit {List721} Event.
-        emit List1155(msg.sender, _address);
-
-        /// @dev Return true.
         return true;
+    }
+
+    /**
+    * @inheritdoc ITyche
+    */
+    function rateNFT(address _address, uint8 _rate) 
+    public
+    override
+    noReentrance
+    returns(bool)
+    {
+        /// @dev Validate address.
+        _validateAddress(_address);
+        /// @dev Ensure the NFT is valid.
+        require(listings[_address]._isValid, "Withdrawn.");
+
+        listings[_address]._totalVotes += _rate;
+        listings[_address]._totalPossibleVotes += 10;
+
+        // sendRewards(msg.sender);
+
+        emit Rate(msg.sender, _address, _rate);
+        // emit Reward(msg.sender);
+
+        return true;
+    }
+
+    /**
+    * @inheritdoc ITyche
+    */
+    function getNFTRatingPercentage(address _address) 
+    public 
+    view 
+    override
+    returns(uint256 _value)
+    {
+        /// @dev Validate address.
+        _validateAddress(_address);
+        /// @dev Ensure the NFT is valid.
+        require(listings[_address]._isValid, "Withdrawn.");
+
+        uint256 total = listings[_address]._totalVotes;
+        uint256 possible = listings[_address]._totalPossibleVotes;
+
+        _value = (total * 100) / possible;
+    }
+
+    /**
+    * @inheritdoc ITyche
+    */
+    function getNFTURI(address _address) 
+    public 
+    view 
+    override
+    returns(string memory _uri) 
+    {
+        /// @dev Validate address.
+        _validateAddress(_address);
+        /// @dev Ensure the NFT is valid.
+        require(listings[_address]._isValid, "Withdrawn.");
+
+        _uri = listings[_address]._uri;
     }
 
     /// @dev Validates address.
@@ -141,6 +190,15 @@ abstract contract Tyche is ITyche, Guard {
         require(_address != address(0), "0x0 Address");
         require(_address != admin, "Admin");
         _address; // Unused.
+    }
+
+    /// @dev Validates that caller owns the NFT listed.
+    /// @param _address NFT address.
+    /// @param _id      Token Id.
+    function isOwner(address _address, uint256 _id) private view returns(bool) {
+        bool owned = (IERC721(_address).ownerOf(_id) == msg.sender) ||
+                        (IERC1155(_address).balanceOf(msg.sender, _id) > 0);
+        return owned;
     }
     
     /// @dev Adds to blacklist from admin.
