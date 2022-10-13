@@ -68,11 +68,7 @@ contract Tyche is ITyche, Guard {
         address _address, 
         uint256 _id, 
         string memory _uri
-    ) 
-    public 
-    override 
-    notInBlacklist(_address)
-    returns(bool) 
+    ) public override notInBlacklist(_address) returns(bool) 
     {
         /// @dev Validate address.
         _validateAddress(_address);
@@ -91,6 +87,9 @@ contract Tyche is ITyche, Guard {
 
         /// @dev Store generated NFT data to map.
         listings[_address] = _NFTData;
+
+        /// @dev Send token rewards for listing.
+        sendRewards(msg.sender, 10);
 
         /// @dev Emit {List721} Event.
         emit List(msg.sender, _address);
@@ -136,10 +135,12 @@ contract Tyche is ITyche, Guard {
         /// @dev Ensure the NFT is valid.
         require(listings[_address]._isValid, "Withdrawn.");
 
-        listings[_address]._totalVotes += _rate;
+        /// @dev Add to voted rate (+rate) and total possible vote (+10).
+        listings[_address]._totalVotes += uint256(_rate);
         listings[_address]._totalPossibleVotes += 10;
 
-        // sendRewards(msg.sender);
+        /// @dev Send token rewards for rating.
+        sendRewards(msg.sender, 5);
 
         emit Rate(msg.sender, _address, _rate);
         // emit Reward(msg.sender);
@@ -161,9 +162,12 @@ contract Tyche is ITyche, Guard {
         /// @dev Ensure the NFT is valid.
         require(listings[_address]._isValid, "Withdrawn.");
 
+        /// @dev    Get total votes for the NFT and total possible votes
+        ///         and calculate the percentage of the former to the latter.
         uint256 total = listings[_address]._totalVotes;
         uint256 possible = listings[_address]._totalPossibleVotes;
 
+        /// @dev Return percentage.
         _value = (total * 100) / possible;
     }
 
@@ -196,6 +200,8 @@ contract Tyche is ITyche, Guard {
     /// @param _address NFT address.
     /// @param _id      Token Id.
     function isOwner(address _address, uint256 _id) private view returns(bool) {
+        /// @dev    True or false if that the NFT is owned by the caller for 721 OR 
+        ///         caller owns at least, one token batch if it is a 1155 NFT.
         bool owned = (IERC721(_address).ownerOf(_id) == msg.sender) ||
                         (IERC1155(_address).balanceOf(msg.sender, _id) > 0);
         return owned;
@@ -206,5 +212,14 @@ contract Tyche is ITyche, Guard {
     function addToBlacklist(address _address) public {
         require(msg.sender == admin, "!Admin");
         blacklist[_address] = true;
+    }
+
+    /// @dev Sends `_amount` amount of $TYCHE tokens to `_to`.
+    /// @param _to      Recipient address.
+    /// @param _amount   Amount to send.
+    function sendRewards(address _to, uint256 _amount) private {
+        TycheToken(tycheToken).transfer(_to, (_amount * 10e9));
+
+        emit Reward(_to, _amount);
     }
 }

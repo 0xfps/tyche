@@ -20,7 +20,7 @@ interface ITyche {
     * @dev  Allows the caller to list an NFT on the protocol. It is
     *       worthy to note that only NFT owners can list their tokens, and 
     *       tokens can be listed if they are not on the blacklist.
-    *       This will emit the {List} event.
+    *       This will emit the {List} and {Reward} events.
     *
     * @param _address   Contract address of the NFT.
     * @param _id        Token Id.
@@ -52,7 +52,7 @@ interface ITyche {
     * @dev  This function allows a caller to rate a particular NFT by voting
     *       on it on on a scale from 1 - 10 (lowest to highest). This rewards 
     *       the rater or voter with some amount of $TYCHE tokens.
-    *       This emits the {Rate} and {Reward} event.
+    *       This emits the {Rate} and {Reward} events.
     *
     * @param _address   Contract address of the NFT.
     * @param _rate      Rate score between 1 - 10.
