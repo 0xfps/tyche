@@ -214,6 +214,13 @@ contract Tyche is ITyche, Guard {
         blacklist[_address] = true;
     }
 
+    /// @dev Remove from blacklist from admin.
+    /// @param _address Address to be removed from blacklist.
+    function removeFromBlacklist(address _address) public {
+        require(msg.sender == admin, "!Admin");
+        blacklist[_address] = false;
+    }
+
     /// @dev Sends `_amount` amount of $TYCHE tokens to `_to`.
     /// @param _to      Recipient address.
     /// @param _amount   Amount to send.
