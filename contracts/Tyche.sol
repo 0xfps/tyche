@@ -72,6 +72,8 @@ contract Tyche is ITyche, Guard {
     {
         /// @dev Validate address.
         _validateAddress(_address);
+        /// @dev Ensure the NFT is not yet listed.
+        require(!listings[_address]._isValid, "Listed");
         /// @dev Ensure the caller is the owner of the NFT.
         require(isOwner(_address, _id), "!Owner");
         /// @dev Ensure the `_uri` is not empty.
@@ -108,7 +110,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn.");
+        require(listings[_address]._isValid, "Withdrawn");
         /// @dev Ensure the caller is the owner of the NFT.
         require(isOwner(_address, _id), "!Owner");
 
@@ -133,7 +135,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn.");
+        require(listings[_address]._isValid, "Withdrawn");
 
         /// @dev Add to voted rate (+rate) and total possible vote (+10).
         listings[_address]._totalVotes += uint256(_rate);
@@ -160,7 +162,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn.");
+        require(listings[_address]._isValid, "Withdrawn");
 
         /// @dev    Get total votes for the NFT and total possible votes
         ///         and calculate the percentage of the former to the latter.
@@ -183,7 +185,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn.");
+        require(listings[_address]._isValid, "Withdrawn");
 
         _uri = listings[_address]._uri;
     }
