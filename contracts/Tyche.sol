@@ -212,6 +212,9 @@ contract Tyche is ITyche, Guard {
     function addToBlacklist(address _address) public {
         require(msg.sender == admin, "!Admin");
         blacklist[_address] = true;
+
+        /// @dev Remove NFT.
+        delete listings[_address];
     }
 
     /// @dev Remove from blacklist from admin.

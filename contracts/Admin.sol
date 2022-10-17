@@ -30,7 +30,7 @@ contract Admin {
             )
         );
 
-        sent;
+        sent; //Unused.
     }
 
     /// @dev Removes an NFT address from blacklist.
@@ -48,6 +48,6 @@ contract Admin {
             )
         );
 
-        sent;
+        sent; // Unused.
     }
 }
