@@ -18,7 +18,6 @@ contract Tyche is ITyche, Guard {
     /// @dev NFT Data.
     struct NFTData {
         bool _isValid;
-        string _type;
         address _lister;
         uint256 _id;
         string _uri;
@@ -82,7 +81,6 @@ contract Tyche is ITyche, Guard {
         /// @dev Generate NFT data to memory.
         NFTData memory _NFTData = NFTData(
             true,
-            "721",
             msg.sender,
             _id, _uri, 0, 0
         );
