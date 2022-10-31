@@ -67,7 +67,11 @@ contract Tyche is ITyche, Guard {
         address _address, 
         uint256 _id, 
         string memory _uri
-    ) public override notInBlacklist(_address) returns(bool) 
+    ) 
+    public 
+    override 
+    notInBlacklist(_address) 
+    returns(bool) 
     {
         /// @dev Validate address.
         _validateAddress(_address);
@@ -91,7 +95,6 @@ contract Tyche is ITyche, Guard {
         /// @dev Send token rewards for listing.
         sendRewards(msg.sender, 10);
 
-        /// @dev Emit {List721} Event.
         emit List(msg.sender, _address);
 
         return true;
@@ -108,7 +111,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn");
+        require(listings[_address]._isValid, "Inexistent NFT.");
         /// @dev Ensure the caller is the owner of the NFT.
         require(isOwner(_address, _id), "!Owner");
 
@@ -133,7 +136,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn");
+        require(listings[_address]._isValid, "Inexistent NFT.");
 
         /// @dev Add to voted rate (+rate) and total possible vote (+10).
         listings[_address]._totalVotes += uint256(_rate);
@@ -142,8 +145,8 @@ contract Tyche is ITyche, Guard {
         /// @dev Send token rewards for rating.
         sendRewards(msg.sender, 5);
 
+        /// @dev Emit the {Rate} event.
         emit Rate(msg.sender, _address, _rate);
-        // emit Reward(msg.sender);
 
         return true;
     }
@@ -160,7 +163,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn");
+        require(listings[_address]._isValid, "Inexistent NFT.");
 
         /// @dev    Get total votes for the NFT and total possible votes
         ///         and calculate the percentage of the former to the latter.
@@ -183,7 +186,7 @@ contract Tyche is ITyche, Guard {
         /// @dev Validate address.
         _validateAddress(_address);
         /// @dev Ensure the NFT is valid.
-        require(listings[_address]._isValid, "Withdrawn");
+        require(listings[_address]._isValid, "Inexistent NFT.");
 
         _uri = listings[_address]._uri;
     }

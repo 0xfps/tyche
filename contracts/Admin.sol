@@ -30,7 +30,7 @@ contract Admin {
             )
         );
 
-        sent; //Unused.
+        require(sent, "NFT could not be added to blacklist");
     }
 
     /// @dev Removes an NFT address from blacklist.
@@ -48,6 +48,6 @@ contract Admin {
             )
         );
 
-        sent; // Unused.
+        require(sent, "NFT could not be removed from blacklist");
     }
 }
